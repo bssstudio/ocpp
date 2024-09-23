@@ -708,7 +708,7 @@ class ChargePoint(cp):
             if resp is None:
                 _LOGGER.warning("Failed to query charging rate unit, assuming Amps")
                 resp = om.current.value
-            if om.current.value in resp:
+            if om.current.value in resp or resp == "":
                 lim = limit_amps
                 units = ChargingRateUnitType.amps.value
             else:
@@ -717,6 +717,11 @@ class ChargePoint(cp):
             resp = await self.get_configuration(
                 ckey.charge_profile_max_stack_level.value
             )
+            
+            #_LOGGER.warning("Setting limit to %d  %s", lim, str(units))
+            #_LOGGER.warning("Stack level from charger %s", resp)
+            if resp == "":
+                resp = 6
             stack_level = int(resp)
             req = call.SetChargingProfile(
                 connector_id=conn_id,
